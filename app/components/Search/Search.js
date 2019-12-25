@@ -21,12 +21,15 @@ const searchStateToUrl = searchState => {
   return searchStateToSync ? `/${createURL(searchStateToSync)}` : "";
 };
 
-export function Search({ searchClient, indexName }) {
+export function Search({
+  searchClient,
+  indexName,
+  searchState: initialSearchState,
+  resultsState
+}) {
   const router = useRouter();
 
-  const [searchState, setSearchState] = React.useState(
-    qs.parse(router.asPath.replace(/^\/?\?/g, ""))
-  );
+  const [searchState, setSearchState] = React.useState(initialSearchState);
   const [debouncedSetState, setDebouncedSetState] = React.useState(null);
 
   const onSearchStateChange = updatedSearchState => {
@@ -45,6 +48,7 @@ export function Search({ searchClient, indexName }) {
     <InstantSearch
       searchClient={searchClient}
       indexName={indexName}
+      resultsState={resultsState}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
       createURL={createURL}
