@@ -1,141 +1,72 @@
 import React from "react";
 import { Highlight, connectCurrentRefinements } from "react-instantsearch-dom";
 
-import { Tag } from "../Tag";
 import { TypeIcon } from "../TypeIcon";
 import { useShiny } from "../ShinyMode";
 import { PokemonLink } from "../PokemonLink";
+import {
+  Card,
+  CardFrame,
+  CardTitle,
+  Dcard,
+  PokemonArtwork,
+  PokemonName,
+  Trigger
+} from "./styles";
 
-function getPropertyByPath(object, path) {
-  const parts = path.split(".");
-  return parts.reduce((current, key) => current && current[key], object);
-}
+export const PokemonHit = connectCurrentRefinements(({ pokemon }) => {
+  const spriteUrl = useShiny(pokemon.artworkUrl, pokemon.spriteShinyUrl);
+  const type = pokemon.types[0];
 
-function getRefinementName(value) {
-  switch (value) {
-    case "hp":
-      return "HP";
-    case "attack":
-      return "Atk";
-    case "defense":
-      return "Def";
-    case "specialAttack":
-      return "Sp. Atk";
-    case "specialDefense":
-      return "Sp. Def";
-    case "speed":
-      return "Speed";
-    default:
-      return value;
-  }
-}
+  return (
+    <Dcard className="w-1/2 md:w-1/4 xl:w-1/5 mt-24">
+      <PokemonLink pokemonId={pokemon.id}>
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
+        <Trigger />
 
-export const PokemonHit = connectCurrentRefinements(
-  ({ items: refinements, pokemon }) => {
-    const spriteUrl = useShiny(pokemon.artworkUrl, pokemon.spriteShinyUrl);
-    const statRefinements = refinements.filter(refinement =>
-      refinement.attribute.startsWith("stats.")
-    );
+        <Card type={type} className="p-6 mx-3 bg-gray-900 rounded-lg">
+          <CardFrame>
+            <PokemonArtwork
+              className="-mt-20"
+              artworkUrl={spriteUrl}
+              alt={pokemon.names.en}
+            />
+            <CardTitle>
+              <PokemonName
+                type={type}
+                className={`font-pokemon text-center text-2xl text-type-${type.name.toLowerCase()}`}
+              >
+                <Highlight tagName="mark" attribute="names.en" hit={pokemon} />
+              </PokemonName>
 
-    return (
-      <div className="dcard w-1/2 md:w-1/4 xl:w-1/5 mt-24">
-        <PokemonLink pokemonId={pokemon.id}>
-        
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-          <div className="trigger"></div>
-
-          <div className="card p-6 mx-3 bg-gray-900 rounded-lg">
-            <div className="frame">
-              <img className="-mt-20" src={spriteUrl} alt={pokemon.names.en} />
-
-              <div className="title">
-                <div
-                  className={`pokemon-name font-pokemon text-center text-2xl text-type-${pokemon.types[0].name.toLowerCase()}`}
-                >
-                  <Highlight
-                    tagName="mark"
-                    attribute="names.en"
-                    hit={pokemon}
-                  />
-                </div>
-
-                <div className="text-center whitespace-no-wrap text-xs italic mt-0 mb-6 text-gray-600">
-                  <Highlight
-                    tagName="mark"
-                    attribute="names.fr"
-                    hit={pokemon}
-                  />
-                  {" - "}
-                  <Highlight
-                    tagName="mark"
-                    attribute="names.ja"
-                    hit={pokemon}
-                  />
-                </div>
+              <div className="text-center whitespace-no-wrap text-xs italic mt-0 mb-6 text-gray-600">
+                <Highlight tagName="mark" attribute="names.fr" hit={pokemon} />
+                {" - "}
+                <Highlight tagName="mark" attribute="names.ja" hit={pokemon} />
               </div>
-
-              <div className="absolute pl-2 pt-1">
-                  <span className="text-xl font-bold text-gray-900">
-                    {pokemon.id}
-                  </span>
-                </div>
-
-              <ul className="absolute top-0 right-0 p-2">
-                {pokemon.types.map(type => (
-                  <li className="mb-2" key={type.name}>
-                    <TypeIcon type={type.name} />
-                  </li>
-                ))}
-              </ul>
-
-              {statRefinements && (
-                <ul>
-                  {statRefinements.map(refinement => (
-                    <li key={refinement.attribute}>
-                      <Tag>
-                        {getRefinementName(refinement.attribute.split(".")[1])}{" "}
-                        <strong>
-                          {getPropertyByPath(pokemon, refinement.attribute)}
-                        </strong>
-                      </Tag>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            </CardTitle>
+            <div className="absolute pl-2 pt-1">
+              <span className="text-xl font-bold text-gray-900">
+                {pokemon.id}
+              </span>
             </div>
-          </div>
-        </PokemonLink>
-        <style jsx>{`
-          .pokemon-name {
-            text-shadow: 0 0 24px var(--color-type-${pokemon.types[0].name.toLowerCase()}),
-            0 0 70px var(--color-type-${pokemon.types[0].name.toLowerCase()});
-          }
-          .card {
-            background-image:
-              radial-gradient(
-                circle at 2%,
-                rgba(230, 230, 255, 0.2),
-                rgba(46, 52, 64, 0.3) 40%,
-                rgba(26, 32, 44, 0.6) 85%
-              ),
-              linear-gradient(
-                20deg,
-                #1a202c 55%,
-                var(--color-type-${pokemon.types[0].name.toLowerCase()})
-              );
-          }
-          .card::after {
-            background-color: var(--color-type-${pokemon.types[0].name.toLowerCase()});
-          }
-        `}</style>
-      </div>
-    );
-  }
-);
+            <ul className="absolute top-0 right-0 p-2">
+              {pokemon.types.map(type => (
+                <li className="mb-2" key={type.name}>
+                  <TypeIcon type={type.name} />
+                </li>
+              ))}
+            </ul>
+          </CardFrame>
+        </Card>
+      </PokemonLink>
+    </Dcard>
+  );
+});
